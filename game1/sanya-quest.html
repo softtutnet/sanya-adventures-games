@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Приключения Пенька Сани</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e22ce 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Анимированный фон */
+        body::before {
+            content: '';
+            position: fixed;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+            animation: float 20s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(5deg); }
+            66% { transform: translate(-20px, 20px) rotate(-5deg); }
+        }
+
+        .game-container {
+            background: linear-gradient(145deg, #ffffff 0%, #f8f9ff 100%);
+            border-radius: 40px;
+            box-shadow: 
+                0 30px 90px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+            max-width: 900px;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+            animation: scaleIn 0.5s ease;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            padding: 30px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '🌲';
+            position: absolute;
+            font-size: 100px;
+            opacity: 0.1;
+            left: -20px;
+            top: -20px;
+            animation: spin 20s linear infinite;
+        }
+
+        .header::after {
+            content: '🍃';
+            position: absolute;
+            font-size: 80px;
+            opacity: 0.1;
+            right: -10px;
+            bottom: -10px;
+            animation: spin 15s linear infinite reverse;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .header-subtitle {
+            font-size: 1.1em;
+            opacity: 0.95;
+            font-weight: 500;
+        }
+
+        .progress-container {
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 20px;
+            padding: 5px;
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.4);
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
+            height: 100%;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: #78350f;
+            font-size: 1.1em;
+            box-shadow: 0 2px 10px rgba(251, 191, 36, 0.5);
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .content {
+            padding: 40px;
+            min-height: 400px;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+            animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes fadeInUp {
+            from { 
+                opacity: 0; 
+                transform: translateY(30px);
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0);
+            }
+        }
+
+        .story-text {
+            font-size: 1.4em;
+            line-height: 1.9;
+            color: #1f2937;
+            margin-bottom: 30px;
+            padding: 30px;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 25px;
+            border-left: 6px solid #0ea5e9;
+            box-shadow: 0 10px 30px rgba(14, 165, 233, 0.15);
+            position: relative;
+        }
+
+        .story-text::before {
+            content: '"';
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            font-size: 4em;
+            color: #0ea5e9;
+            opacity: 0.2;
+            font-family: Georgia, serif;
+        }
+
+        .character-image {
+            width: 220px;
+            height: 220px;
+            margin: 30px auto;
+            display: block;
+            border-radius: 30px;
+            box-shadow: 
+                0 20px 50px rgba(0, 0, 0, 0.25),
+                0 0 0 8px rgba(255, 255, 255, 0.8);
+            animation: floatBounce 3s ease-in-out infinite;
+            transition: transform 0.3s ease;
+        }
+
+        .character-image:hover {
+            transform: scale(1.05) rotate(2deg);
+        }
+
+        @keyframes floatBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .choices {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            margin-top: 25px;
+        }
+
+        .choice-btn {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            padding: 24px 30px;
+            font-size: 1.3em;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
+            font-weight: 600;
+            box-shadow: 
+                0 8px 20px rgba(139, 92, 246, 0.4),
+                0 0 0 3px rgba(139, 92, 246, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .choice-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .choice-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .choice-btn:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 
+                0 15px 35px rgba(139, 92, 246, 0.5),
+                0 0 0 3px rgba(139, 92, 246, 0.2);
+        }
+
+        .choice-btn:active {
+            transform: translateY(-2px) scale(0.98);
+        }
+
+        .choice-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .choice-btn.correct {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            animation: correctPulse 0.6s ease;
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.5);
+        }
+
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .choice-btn.wrong {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            animation: shake 0.5s ease;
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.5);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .mini-game {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            padding: 35px;
+            border-radius: 25px;
+            margin: 25px 0;
+            box-shadow: 0 10px 30px rgba(253, 230, 138, 0.4);
+            border: 3px solid #fbbf24;
+        }
+
+        .mini-game h3 {
+            color: #78350f;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            max-width: 450px;
+            margin: 25px auto;
+        }
+
+        .memory-card {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            border-radius: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 6px 15px rgba(99, 102, 241, 0.4);
+            position: relative;
+        }
+
+        .memory-card::after {
+            content: '';
+            position: absolute;
+            inset: 5px;
+            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .memory-card:hover:not(.matched) {
+            transform: scale(1.08) rotate(2deg);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.6);
+        }
+
+        .memory-card.flipped {
+            background: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .memory-card.matched {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            cursor: default;
+            animation: matchFlip 0.6s ease;
+        }
+
+        @keyframes matchFlip {
+            0% { transform: rotateY(0deg); }
+            50% { transform: rotateY(180deg); }
+            100% { transform: rotateY(360deg); }
+        }
+
+        .puzzle-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            max-width: 350px;
+            margin: 25px auto;
+        }
+
+        .puzzle-piece {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            font-weight: 800;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 15px rgba(139, 92, 246, 0.4);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .puzzle-piece:hover:not(.empty) {
+            transform: scale(1.15) rotate(5deg);
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.6);
+        }
+
+        .puzzle-piece.empty {
+            background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+            border: 3px dashed #9ca3af;
+            cursor: default;
+        }
+
+        .celebration {
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        .celebration h2 {
+            font-size: 3.5em;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 25px;
+            animation: celebrationPulse 1.5s ease-in-out infinite;
+            font-weight: 900;
+        }
+
+        @keyframes celebrationPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .stars {
+            font-size: 4em;
+            margin: 25px 0;
+            animation: twinkle 1s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.2); }
+        }
+
+        .achievement-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 20px;
+            padding: 25px;
+            margin: 25px auto;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(253, 230, 138, 0.4);
+        }
+
+        .achievement-item {
+            font-size: 1.3em;
+            margin: 12px 0;
+            padding: 12px 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: #78350f;
+            border: none;
+            padding: 28px 60px;
+            font-size: 1.6em;
+            font-weight: 800;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 
+                0 15px 40px rgba(251, 191, 36, 0.5),
+                0 0 0 4px rgba(251, 191, 36, 0.2);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .start-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .start-btn:hover::before {
+            width: 400px;
+            height: 400px;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 
+                0 20px 50px rgba(251, 191, 36, 0.6),
+                0 0 0 6px rgba(251, 191, 36, 0.3);
+        }
+
+        .start-btn:active {
+            transform: translateY(-4px) scale(1.02);
+        }
+
+        .hint {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 3px solid #fbbf24;
+            border-radius: 18px;
+            padding: 20px 25px;
+            margin: 20px 0;
+            font-size: 1.2em;
+            color: #78350f;
+            font-weight: 600;
+            box-shadow: 0 8px 20px rgba(251, 191, 36, 0.3);
+        }
+
+        .hint-btn {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 6px 15px rgba(6, 182, 212, 0.4);
+            transition: all 0.3s ease;
+            margin: 15px 0;
+        }
+
+        .hint-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(6, 182, 212, 0.5);
+        }
+
+        .solve-btn {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 1.3em;
+            border-radius: 18px;
+            cursor: pointer;
+            font-weight: 700;
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
+            transition: all 0.3s ease;
+            margin: 20px auto;
+            display: block;
+        }
+
+        .solve-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(245, 158, 11, 0.6);
+        }
+
+        .hidden-hint {
+            display: none;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border: 3px solid #3b82f6;
+            border-radius: 18px;
+            padding: 20px 25px;
+            margin: 15px 0;
+            font-size: 1.15em;
+            color: #1e40af;
+            font-weight: 600;
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+            animation: fadeInUp 0.5s ease;
+        }
+
+        .hidden-hint.show {
+            display: block;
+        }
+
+        .welcome-description {
+            font-size: 1.25em;
+            line-height: 1.8;
+            color: #374151;
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .story-text {
+                font-size: 1.2em;
+                padding: 20px;
+            }
+
+            .choice-btn {
+                font-size: 1.1em;
+                padding: 18px 20px;
+            }
+
+            .character-image {
+                width: 180px;
+                height: 180px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>🌲 Приключения Пенька Сани 🌲</h1>
+            <div class="header-subtitle">Добрые истории из волшебного леса</div>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress">
+                        <span id="progress-text">0/10</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Начальный экран -->
+            <div class="screen active" id="welcome">
+                <div class="story-text">
+                    <p>🌳 Добро пожаловать в волшебный лес! 🌳</p>
+                    <p style="margin-top: 15px;">Познакомься с добрым пеньком Саней, который живёт в уютном домике посреди леса. Каждый день он помогает лесным жителям и отправляется в увлекательные приключения!</p>
+                </div>
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect fill='%238B4513' x='60' y='50' width='80' height='100' rx='10'/%3E%3Cellipse fill='%23654321' cx='100' cy='50' rx='50' ry='20'/%3E%3Ccircle fill='white' cx='85' cy='80' r='12'/%3E%3Ccircle fill='white' cx='115' cy='80' r='12'/%3E%3Ccircle fill='black' cx='85' cy='80' r='6'/%3E%3Ccircle fill='black' cx='115' cy='80' r='6'/%3E%3Cpath fill='none' stroke='black' stroke-width='3' d='M 85 105 Q 100 115 115 105'/%3E%3Ccircle fill='%23FFB6C1' cx='70' cy='95' r='8'/%3E%3Ccircle fill='%23FFB6C1' cx='130' cy='95' r='8'/%3E%3Crect fill='%234682B4' x='70' y='150' width='60' height='30' rx='5'/%3E%3Crect fill='%23228B22' x='65' y='180' width='70' height='15' rx='5'/%3E%3C/svg%3E" alt="Пенёк Саня" class="character-image">
+                <div class="welcome-description">
+                    Тебя ждут 10 увлекательных заданий: загадки, головоломки, игры на внимание и память. Помоги Сане и его друзьям!
+                </div>
+                <div style="text-align: center;">
+                    <button class="start-btn" onclick="startGame()">Начать приключение! 🚀</button>
+                </div>
+            </div>
+
+            <!-- Квест 1: Помощь белочке -->
+            <div class="screen" id="quest1">
+                <div class="story-text">
+                    <p>🐿️ Саня гулял по лесу и услышал плач. Это была белочка Маша. Она потеряла свои орешки!</p>
+                    <p style="margin-top: 15px;">"Помоги мне, Саня! Я собирала орешки на зиму, но забыла где их спрятала!" - всхлипывала белочка.</p>
+                </div>
+                <div class="hint">💡 Подсказка: Белочки обычно прячут орешки в безопасных местах!</div>
+                <div class="choices">
+                    <button class="choice-btn" onclick="makeChoice(1, 'A', this)">🌳 Поискать в дупле старого дуба</button>
+                    <button class="choice-btn" onclick="makeChoice(1, 'B', this)">🏞️ Поискать у реки</button>
+                    <button class="choice-btn" onclick="makeChoice(1, 'C', this)">🌸 Поискать на полянке с цветами</button>
+                </div>
+            </div>
+
+            <!-- Квест 2: Мини-игра память -->
+            <div class="screen" id="quest2">
+                <div class="story-text">
+                    <p>🎉 Отлично! Саня нашёл орешки в дупле! Белочка так обрадовалась!</p>
+                    <p style="margin-top: 15px;">🦉 Вдруг появилась мудрая сова: "Саня, помоги мне проверить память моих совят! Найди все пары картинок!"</p>
+                </div>
+                <div class="mini-game">
+                    <h3>Найди пары! 🎴</h3>
+                    <div class="memory-grid" id="memoryGrid"></div>
+                </div>
+            </div>
+
+            <!-- Квест 3: Загадка -->
+            <div class="screen" id="quest3">
+                <div class="story-text">
+                    <p>👏 Молодец! Совята довольны!</p>
+                    <p style="margin-top: 15px;">🦊 К Сане подбежал лисёнок: "Саня, помоги разгадать загадку! Кто зимой холодной ходит злой, голодный?"</p>
+                </div>
+                <div class="choices">
+                    <button class="choice-btn" onclick="makeChoice(3, 'A', this)">🐺 Волк</button>
+                    <button class="choice-btn" onclick="makeChoice(3, 'B', this)">🐻 Медведь</button>
+                    <button class="choice-btn" onclick="makeChoice(3, 'C', this)">🦊 Лиса</button>
+                </div>
+            </div>
+
+            <!-- Квест 4: Счёт -->
+            <div class="screen" id="quest4">
+                <div class="story-text">
+                    <p>🎯 Правильно! Это волк!</p>
+                    <p style="margin-top: 15px;">🐰 Зайчата попросили помочь: "Саня, мы собрали морковки, но не можем посчитать! У нас 3 большие и 4 маленькие морковки. Сколько всего?"</p>
+                </div>
+                <div class="choices">
+                    <button class="choice-btn" onclick="makeChoice(4, 'A', this)">5 морковок</button>
+                    <button class="choice-btn" onclick="makeChoice(4, 'B', this)">7 морковок</button>
+                    <button class="choice-btn" onclick="makeChoice(4, 'C', this)">6 морковок</button>
+                </div>
+            </div>
+
+            <!-- Квест 5: Цвета -->
+            <div class="screen" id="quest5">
+                <div class="story-text">
+                    <p>✨ Верно! 7 морковок!</p>
+                    <p style="margin-top: 15px;">🦋 Прилетела бабочка: "Саня, я хочу сесть на самый красивый цветок! Какого цвета бывают розы?"</p>
+                </div>
+                <div class="choices">
+                    <button class="choice-btn" onclick="makeChoice(5, 'A', this)">Только красные</button>
+                    <button class="choice-btn" onclick="makeChoice(5, 'B', this)">🌈 Красные, розовые, белые, жёлтые</button>
+                    <button class="choice-btn" onclick="makeChoice(5, 'C', this)">Только розовые</button>
+                </div>
+            </div>
+
+            <!-- Квест 6: Пазл -->
+            <div class="screen" id="quest6">
+                <div class="story-text">
+                    <p>🌹 Правильно! Розы бывают разных цветов!</p>
+                    <p style="margin-top: 15px;">🐻 Медвежонок принёс головоломку: "Саня, помоги собрать числа по порядку!"</p>
+                </div>
+                <div class="mini-game">
+                    <h3>Расставь числа от 1 до 8! 🔢</h3>
+                    <div class="puzzle-container" id="puzzleContainer"></div>
+                </div>
+            </div>
+
+            <!-- Квест 7: Времена года -->
+            <div class="screen" id="quest7">
+                <div class="story-text">
+                    <p>🎊 Отлично! Головоломка решена!</p>
+                    <p style="margin-top: 15px;">🌳 Старое дерево спросило: "Саня, когда на деревьях появляются зелёные листочки?"</p>
+                </div>
+                <div class="choices">
+                    <button class="choice-btn" onclick="makeChoice(7, 'A', this)">❄️ Зимой</button>
+                    <button class="choice-btn" onclick="makeChoice(7, 'B', this)">🌸 Весной</button>
+                    <button class="choice-btn" onclick="makeChoice(7, 'C', this)">🍂 Осенью</button>
+                </div>
+            </div>
+
+            <!-- Квест 8: Доброта -->
+            <div class="screen" id="quest8">
+                <div class="story-text">
+                    <p>🌱 Правильно! Весной!</p>
+                    <p style="margin-top: 15px;">😢 Саня увидел маленького ёжика, который упал и поранил лапку. Что нужно сделать?</p>
+                </div>
+                <div class="choices">
+                    <button class="choice-btn" onclick="makeChoice(8, 'A', this)">Пройти мимо</button>
+                    <button class="choice-btn" onclick="makeChoice(8, 'B', this)">💚 Помочь и перевязать лапку</button>
+                    <button class="choice-btn" onclick="makeChoice(8, 'C', this)">Позвать кого-то другого</button>
+                </div>
+            </div>
+
+            <!-- Квест 9: Дружба -->
+            <div class="screen" id="quest9">
+                <div class="story-text">
+                    <p>💚 Саня помог ёжику! Вот что значит настоящая доброта!</p>
+                    <p style="margin-top: 15px;">👫 Все звери собрались вместе: "Саня, мы хотим устроить праздник дружбы! Что нам нужно?"</p>
+                </div>
+                <div class="choices">
+                    <button class="choice-btn" onclick="makeChoice(9, 'A', this)">Только вкусная еда</button>
+                    <button class="choice-btn" onclick="makeChoice(9, 'B', this)">❤️ Хорошее настроение и друзья рядом</button>
+                    <button class="choice-btn" onclick="makeChoice(9, 'C', this)">Много игрушек</button>
+                </div>
+            </div>
+
+            <!-- Квест 10: Финал -->
+            <div class="screen" id="quest10">
+                <div class="story-text">
+                    <p>🎈 Совершенно верно! Главное - друзья и веселье!</p>
+                    <p style="margin-top: 15px;">🌟 Все лесные жители собрались на поляне. Они приготовили сюрприз для Сани!</p>
+                    <p style="margin-top: 15px;">"Спасибо тебе, Саня! Ты настоящий герой нашего леса! Ты всегда помогаешь, учишь нас доброте и дружбе!"</p>
+                </div>
+                <div class="celebration">
+                    <h2>🎉 ПОЗДРАВЛЯЕМ! 🎉</h2>
+                    <div class="stars">⭐⭐⭐⭐⭐</div>
+                    <p style="font-size: 1.5em; margin: 25px 0; font-weight: 700;">Ты прошёл все приключения вместе с Саней!</p>
+                    <div class="achievement-box">
+                        <p style="font-size: 1.4em; color: #78350f; margin-bottom: 20px; font-weight: 700;">🏆 Чему ты научился:</p>
+                        <div class="achievement-item">✨ Помогать друзьям</div>
+                        <div class="achievement-item">💭 Решать головоломки</div>
+                        <div class="achievement-item">🌈 Быть добрым</div>
+                        <div class="achievement-item">🎯 Думать логически</div>
+                        <div class="achievement-item">❤️ Ценить дружбу</div>
+                    </div>
+                    <button class="start-btn" style="margin-top: 35px;" onclick="restartGame()">Сыграть ещё раз! 🔄</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let completedQuests = 0;
+        let memoryCards = [];
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let puzzleState = [];
+        let canClick = true;
+
+        function updateProgress() {
+            completedQuests++;
+            const progress = (completedQuests / 10) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+            document.getElementById('progress-text').textContent = completedQuests + '/10';
+        }
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function startGame() {
+            completedQuests = 0;
+            document.getElementById('progress').style.width = '0%';
+            document.getElementById('progress-text').textContent = '0/10';
+            showScreen('quest1');
+        }
+
+        function makeChoice(questNum, choice, button) {
+            if (!canClick) return;
+            
+            const correctAnswers = {
+                1: 'A', 3: 'A', 4: 'B', 5: 'B', 7: 'B', 8: 'B', 9: 'B'
+            };
+
+            const buttons = button.parentElement.querySelectorAll('.choice-btn');
+            buttons.forEach(btn => btn.disabled = true);
+            canClick = false;
+
+            if (correctAnswers[questNum] === choice) {
+                button.classList.add('correct');
+                const originalText = button.textContent;
+                button.textContent = originalText + ' ✓';
+                updateProgress();
+                setTimeout(() => {
+                    showNextQuest(questNum);
+                    canClick = true;
+                }, 1500);
+            } else {
+                button.classList.add('wrong');
+                const originalText = button.textContent;
+                button.textContent = originalText + ' ✗';
+                setTimeout(() => {
+                    button.classList.remove('wrong');
+                    button.textContent = originalText;
+                    buttons.forEach(btn => btn.disabled = false);
+                    canClick = true;
+                }, 1200);
+            }
+        }
+
+        function showNextQuest(current) {
+            const nextQuest = current + 1;
+            if (nextQuest === 2) {
+                showScreen('quest2');
+                initMemoryGame();
+            } else if (nextQuest === 6) {
+                showScreen('quest6');
+                initPuzzle();
+            } else {
+                showScreen('quest' + nextQuest);
+            }
+        }
+
+        function initMemoryGame() {
+            const symbols = ['🍎', '🍎', '🍌', '🍌', '🍓', '🍓', '🌸', '🌸', '⭐', '⭐', '🌈', '🌈', '🎈', '🎈', '🎨', '🎨'];
+            memoryCards = symbols.sort(() => Math.random() - 0.5);
+            const grid = document.getElementById('memoryGrid');
+            grid.innerHTML = '';
+            matchedPairs = 0;
+            flippedCards = [];
+
+            memoryCards.forEach((symbol, index) => {
+                const card = document.createElement('div');
+                card.className = 'memory-card';
+                card.dataset.index = index;
+                card.dataset.symbol = symbol;
+                card.textContent = '?';
+                card.onclick = () => flipCard(card);
+                grid.appendChild(card);
+            });
+        }
+
+        function flipCard(card) {
+            if (flippedCards.length >= 2 || card.classList.contains('flipped') || card.classList.contains('matched')) {
+                return;
+            }
+
+            card.classList.add('flipped');
+            card.textContent = card.dataset.symbol;
+            flippedCards.push(card);
+
+            if (flippedCards.length === 2) {
+                setTimeout(checkMatch, 800);
+            }
+        }
+
+        function checkMatch() {
+            const [card1, card2] = flippedCards;
+            
+            if (card1.dataset.symbol === card2.dataset.symbol) {
+                card1.classList.add('matched');
+                card2.classList.add('matched');
+                matchedPairs++;
+
+                if (matchedPairs === 8) {
+                    updateProgress();
+                    setTimeout(() => showScreen('quest3'), 1500);
+                }
+            } else {
+                card1.classList.remove('flipped');
+                card2.classList.remove('flipped');
+                card1.textContent = '?';
+                card2.textContent = '?';
+            }
+
+            flippedCards = [];
+        }
+
+        function initPuzzle() {
+            puzzleState = [1, 2, 3, 4, 5, 6, 7, 8, 0].sort(() => Math.random() - 0.5);
+            renderPuzzle();
+        }
+
+        function renderPuzzle() {
+            const container = document.getElementById('puzzleContainer');
+            container.innerHTML = '';
+
+            puzzleState.forEach((num, index) => {
+                const piece = document.createElement('div');
+                piece.className = 'puzzle-piece';
+                if (num === 0) {
+                    piece.classList.add('empty');
+                } else {
+                    piece.textContent = num;
+                    piece.onclick = () => movePiece(index);
+                }
+                container.appendChild(piece);
+            });
+
+            checkPuzzleComplete();
+        }
+
+        function movePiece(index) {
+            const emptyIndex = puzzleState.indexOf(0);
+            const validMoves = [
+                emptyIndex - 3, emptyIndex + 3,
+                emptyIndex - 1, emptyIndex + 1
+            ].filter(i => {
+                if (i < 0 || i > 8) return false;
+                if (emptyIndex % 3 === 0 && i === emptyIndex - 1) return false;
+                if (emptyIndex % 3 === 2 && i === emptyIndex + 1) return false;
+                return true;
+            });
+
+            if (validMoves.includes(index)) {
+                [puzzleState[index], puzzleState[emptyIndex]] = [puzzleState[emptyIndex], puzzleState[index]];
+                renderPuzzle();
+            }
+        }
+
+        function checkPuzzleComplete() {
+            const isComplete = puzzleState.every((num, idx) => idx === 8 || num === idx + 1);
+            if (isComplete) {
+                updateProgress();
+                setTimeout(() => showScreen('quest7'), 1500);
+            }
+        }
+
+        function restartGame() {
+            completedQuests = 0;
+            document.getElementById('progress').style.width = '0%';
+            document.getElementById('progress-text').textContent = '0/10';
+            canClick = true;
+            showScreen('welcome');
+        }
+    </script>
+</body>
+</html>
